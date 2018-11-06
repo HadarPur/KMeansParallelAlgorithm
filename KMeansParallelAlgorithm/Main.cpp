@@ -8,15 +8,14 @@
 
 int main(int argc, char *argv[])
 {
-	int i;
 	Point* points;
 	Cluster* clusters;
 	Point** pointsMat; // Each row I, contains the cluster I points.
 	int* clustersSize; // Each array cell I contain the size of the row I in pointsMat.
+	int i, errorCode = 999;
+	int namelen, numprocs, myid;
 	int totalNumOfPoints, K; // K - Number of clusters,limit - the maximum number of iterations for K-Mean algorithem.
 	double QM, T, dt, quality, time, limit;
-
-	int  namelen, numprocs, myid;
 	char processor_name[MPI_MAX_PROCESSOR_NAME];
 
 	MPI_Init(&argc, &argv);
@@ -26,11 +25,11 @@ int main(int argc, char *argv[])
 	MPI_Status status;
 	MPI_Comm grid_comm;
 
-	//read points from file
-	points = readDataFromFile(&totalNumOfPoints, &K, &limit, &QM, &T, &dt);
-	//Choose first K points as the initial clusters centers, Step 1 in K-Means algorithem
-
-	clusters = initClusters(points, K);
+	if (numprocs < 3)
+	{
+		printf("Num of the proccess / computers must be grater than 3");
+		MPI_Abort(MPI_COMM_WORLD, errorCode);
+	}
 
 	//Create matrix of points, where the number of rows are the number of the clusters.
 	pointsMat = (Point**)calloc(K, sizeof(Point*));
@@ -38,13 +37,28 @@ int main(int argc, char *argv[])
 	clustersSize = (int*)calloc(K, sizeof(int));
 	checkAllocation(clustersSize);
 
+	// only the master read from the file
+	if (myid == 0)
+	{
+		//read points from file
+		points = readDataFromFile(&totalNumOfPoints, &K, &limit, &QM, &T, &dt);
+	}
+	//Choose first K points as the initial clusters centers, Step 1 in K-Means algorithem
+	clusters = initClusters(points, K);
+
 	//Start of the Algorithem
 	quality = kMeansWithIntervals(points, clusters, pointsMat, clustersSize, totalNumOfPoints, K, limit, QM, T, dt, &time);
 
 	//Print the result of the K-Means algorithem -> the quality
 	printf("The quality is : %lf\n", quality);
 
-	writeToFile(time, quality, clusters, K);
+
+	// only the master wtite to the file
+	if (myid == 0) 
+	{
+		//write final points from file
+		writeToFile(time, quality, clusters, K);
+	}
 
 	//Free memory from the heap (dynamic)
 	freeDynamicAllocation(clustersSize);
