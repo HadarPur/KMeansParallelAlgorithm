@@ -15,12 +15,30 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
+    <ClCompile Include="Allocation Func.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="File Func.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="KMeans Func.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MPI Type Decleration Func.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header.h">
+    <ClInclude Include="KMeans Header.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="File Header.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Allocation Header.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MPI Type Decleration Header.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

@@ -160,11 +160,17 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="File Func.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="KMeans Func.cpp" />
+    <ClCompile Include="Allocation Func.cpp" />
+    <ClCompile Include="MPI Type Decleration Func.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Header.h" />
+    <ClInclude Include="Allocation Header.h" />
+    <ClInclude Include="File Header.h" />
+    <ClInclude Include="KMeans Header.h" />
+    <ClInclude Include="MPI Type Decleration Header.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
