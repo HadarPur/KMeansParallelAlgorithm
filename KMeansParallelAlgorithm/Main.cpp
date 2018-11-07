@@ -10,8 +10,14 @@ int main(int argc, char *argv[])
 {
 	Point* points;
 	Cluster* clusters;
+
 	Point** pointsMat; // group of points for each cluster
 	int* clustersSize; // size for each group
+
+	double* initialPointsCor;
+	double* currentPointsCor;
+	double* velocityCor;
+
 	int i, errorCode = 999;
 	int namelen, numprocs, myid, numOfPoints;
 	int K;				// K - Number of clusters
@@ -48,7 +54,7 @@ int main(int argc, char *argv[])
 	if (myid == MASTER)
 	{
 		// read points from file
-		points = readDataFromFile(&N, &K, &LIMIT, &QM, &T, &dT);
+		points = readDataFromFile(&N, &K, &T, &dT, &LIMIT, &QM);
 
 		// each proccess will get numOfPoints to handle with beside the master
 		numOfPoints = N / numprocs;
@@ -75,21 +81,40 @@ int main(int argc, char *argv[])
 	// create matrix of points, where the number of rows are the number of the clusters.
 	pointsMat = (Point**)calloc(K, sizeof(Point*));
 	checkAllocation(pointsMat);
-	//create array of integers, where the number of points for each clusters.
+
+	// create array of integers, where the number of points for each clusters.
 	clustersSize = (int*)calloc(K, sizeof(int));
 	checkAllocation(clustersSize);
 
-	//Start of the Algorithem
-	quality = kMeansWithIntervals(points, clusters, pointsMat, clustersSize, N, K, LIMIT, QM, T, dT, &time);
+	// before starting each proccess needs to allocate space for the initial cordinates
+	initialPointsCor = (double*)calloc(numOfPoints * 3, sizeof(double));
+	checkAllocation(initialPointsCor);
 
-	//Print the result of the K-Means algorithem -> the quality
-	printf("The quality is : %lf\n", quality);
+	// before starting each proccess needs to allocate space for the current cordinates
+	currentPointsCor = (double*)calloc(numOfPoints * 3, sizeof(double));
+	checkAllocation(currentPointsCor);
 
-	// only the master wtite to the file
-	if (myid == 0) 
+	// before starting each proccess needs to allocate space for the velocity cordinates
+	velocityCor = (double*)calloc(numOfPoints * 3, sizeof(double));
+	checkAllocation(velocityCor);
+
+
+	if (myid == MASTER)
 	{
+		//sends
+		for (int numOfProccess = 1; numOfProccess < numprocs; numOfProccess++)
+		{
+
+		}
+		//Start of the Algorithem
+		quality = kMeansWithIntervals(points, clusters, pointsMat, clustersSize, N, K, LIMIT, QM, T, dT, &time);
+
 		//write final points from file
 		writeToFile(time, quality, clusters, K);
+	}
+	else
+	{
+
 	}
 
 	//Free memory from the heap (dynamic)
@@ -102,7 +127,7 @@ int main(int argc, char *argv[])
 	freeDynamicAllocation(clusters);
 	freeDynamicAllocation(points);
 
-	printf("bye bye\n");
+	printf("The proccess %d is finished\n", myid);
 	system("pause");
 
 	MPI_Finalize();

@@ -30,7 +30,6 @@ Cluster* initClusters(const Point* points, int K)
 		clusters[i].z = points[i].z0;
 		clusters[i].diameter = 0;
 	}
-
 	return clusters;
 }
 
@@ -51,7 +50,6 @@ int getClosestClusterIndex(double x, double y, double z, Cluster* clusters, int 
 			index = i;
 		}
 	}
-
 	return index;
 }
 
@@ -77,16 +75,16 @@ void groupPointsToClusters(Point** pointsMat, int* clustersSize, Point* points, 
 		pointsMat[points[i].currentClusterIndex] = (Point*)realloc(pointsMat[points[i].currentClusterIndex], clustersSize[points[i].currentClusterIndex] * sizeof(Point));
 		pointsMat[points[i].currentClusterIndex][(clustersSize[points[i].currentClusterIndex]) - 1] = points[i];
 	}
-
 }
-// CSalculate distance between 2 points
+
+// Calculate distance between 2 points
 double distancePointToPoint(double x1, double y1, double z1, double x2, double y2, double z2)
 {
 	return sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2) + pow((z1 - z2), 2));
 }
 
-// Recalculate the cluster centers (3)
-void calClusterCenter(Cluster* cluster, Point* clusterPoints, int clusterPointsSize)//Step 3 in K-Means algorithm
+// Recalculate the cluster centers - step 3 in K-Means algorithm
+void calClusterCenter(Cluster* cluster, Point* clusterPoints, int clusterPointsSize)
 {
 	int i;
 	double sumX = 0, sumY = 0, sumZ = 0;
@@ -103,7 +101,6 @@ void calClusterCenter(Cluster* cluster, Point* clusterPoints, int clusterPointsS
 	cluster->x = (sumX / clusterPointsSize);
 	cluster->y = (sumY / clusterPointsSize);
 	cluster->z = (sumZ / clusterPointsSize);
-
 }
 
 // Calculate diameters for specific cluster
@@ -123,7 +120,6 @@ double calClusterDiameter(Point* clusterPoints, int clusterPointsSize)
 			}
 		}
 	}
-
 	return maxDistance;
 }
 
@@ -154,7 +150,6 @@ double evaluateQuality(Point** pointsMat, Cluster* clusters, int K, int* cluster
 
 	// Calculate the average of diameters of the cluster divided by distance to other clusters
 	quality = numerator / numOfArguments;
-
 	return quality;
 }
 
@@ -186,10 +181,7 @@ double kMeansWithIntervals(Point* points, Cluster* clusters, Point** pointsMat, 
 		// Checks if the current given quality measure is better than the best given quality so far.
 		if (tempQuality < quality || quality == 0)
 			quality = tempQuality;
-
-		printf("QM = %lf, time = %lf, quality = %lf\n", QM, *time, quality);
 	}
-
 	return quality;
 }
 

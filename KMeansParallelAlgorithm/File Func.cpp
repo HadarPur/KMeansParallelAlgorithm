@@ -7,7 +7,7 @@ const char* FILE_PATH_INPUT = "D:\\KMeansParallelAlgorithm\\INPUT_FILE2.txt";
 const char* FILE_PATH_OUTPUT = "D;\\KMeansParallelAlgorithm\\OUTPUT_FILE2.txt";
 
 // Read all the points from the file
-Point* readDataFromFile(int* totalNumOfPoints, int* K, double* limit, double* QM, double* T, double* dt)
+Point* readDataFromFile(int* N, int* K, double* T, double* dt, double* limit, double* QM)
 {
 	int i;
 	FILE* file = fopen(FILE_PATH_INPUT, "r");
@@ -20,13 +20,13 @@ Point* readDataFromFile(int* totalNumOfPoints, int* K, double* limit, double* QM
 		exit(1);
 	}
 	// Getting the supplied data from input file
-	fscanf(file, "%d %d %lf %lf %lf %lf\n", totalNumOfPoints, K, T, dt, limit, QM);
+	fscanf(file, "%d %d %lf %lf %lf %lf\n", N, K, T, dt, limit, QM);
 
-	Point* points = (Point*)malloc(*totalNumOfPoints * sizeof(Point));
+	Point* points = (Point*)malloc(*N * sizeof(Point));
 	checkAllocation(points);
 
 	// Initalize points from file
-	for (i = 0; i < *totalNumOfPoints; i++)
+	for (i = 0; i < *N; i++)
 	{
 		fscanf(file, "%lf %lf %lf %lf %lf %lf\n", &(points[i].x0), &(points[i].y0), &(points[i].z0), &(points[i].vx), &(points[i].vy), &(points[i].vz));
 		points[i].x = 0;
