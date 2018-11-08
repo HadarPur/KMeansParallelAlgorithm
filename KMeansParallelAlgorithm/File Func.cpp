@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 #include "KMeans Header.h"
 #include "Allocation Header.h"
 
-const char* FILE_PATH_INPUT = "D:\\KMeansParallelAlgorithm\\INPUT_FILE2.txt";
-const char* FILE_PATH_OUTPUT = "D;\\KMeansParallelAlgorithm\\OUTPUT_FILE2.txt";
+const char* FILE_PATH_INPUT = "D:\\KMeansParallelAlgorithm\\16Points.txt";
+const char* FILE_PATH_OUTPUT = "D:\\KMeansParallelAlgorithm\\16PointsOutPut.txt";
 
 // Read all the points from the file
 Point* readDataFromFile(int* N, int* K, double* T, double* dt, double* limit, double* QM)
@@ -16,7 +17,7 @@ Point* readDataFromFile(int* N, int* K, double* T, double* dt, double* limit, do
 	if (!file)
 	{
 		printf("could not open the file ");
-		system("pause");
+		MPI_Finalize();
 		exit(1);
 	}
 	// Getting the supplied data from input file
@@ -47,6 +48,7 @@ void writeToFile(double t, double q, Cluster* clusters, int K)
 
 	if (file == NULL) {
 		printf("Couldnt open the file\n");
+		MPI_Finalize();
 		exit(1);
 	}
 
