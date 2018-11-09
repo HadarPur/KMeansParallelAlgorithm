@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
 	velocityPointsCor = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
 	checkAllocation(velocityPointsCor);
 
+	// sum array to calculate the average x,y,z 
 	sumPointsCenters = (double*)calloc(K * NUM_OF_DIMENSIONS, sizeof(double));
 	checkAllocation(sumPointsCenters);
 
@@ -111,9 +112,8 @@ int main(int argc, char *argv[])
 		//sends to each slave the relevante points
 		for (int proccessID = 1; proccessID < numprocs; proccessID++)
 		{
-			MPI_Send(points + numOfPointForEachProc * (proccessID-1), numOfPointForEachProc, PointType, proccessID, TAG, MPI_COMM_WORLD);
+			MPI_Send(points + numOfPoints+ (numOfPointForEachProc * (proccessID-1)), numOfPointForEachProc, PointType, proccessID, TAG, MPI_COMM_WORLD);
 		}
-
 
 		printf("K-Means Algorithm status: start\n");
 		fflush(stdout);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 		checkAllocation(points);
 		// allocation points array for each salve
 		clusters = (Cluster*)calloc(K, sizeof(Cluster));
-		checkAllocation(points);
+		checkAllocation(clusters);
 
 		MPI_Recv(points, numOfPoints, PointType, MASTER, TAG, MPI_COMM_WORLD, &status);
 

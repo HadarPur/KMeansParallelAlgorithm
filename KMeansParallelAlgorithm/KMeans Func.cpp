@@ -77,10 +77,7 @@ void groupPointsToClusters(Point** pointsMat, int* clustersSize, Point* points, 
 	{
 		points[i].previousClusterIndex = points[i].currentClusterIndex;
 		points[i].currentClusterIndex = getClosestClusterIndex(points[i].x, points[i].y, points[i].z, clusters, K);
-	}
 
-	for (i = 0; i < totalNumOfPoints; i++)
-	{
 		clustersSize[points[i].currentClusterIndex]++;
 		pointsMat[points[i].currentClusterIndex] = (Point*)realloc(pointsMat[points[i].currentClusterIndex], clustersSize[points[i].currentClusterIndex] * sizeof(Point));
 		pointsMat[points[i].currentClusterIndex][(clustersSize[points[i].currentClusterIndex]) - 1] = points[i];
@@ -109,7 +106,9 @@ void calPointsCordinates(Point* points, int N, double t)
 // Recalculate the cluster centers - step 3 in K-Means algorithm
 void calSumPointsCorToCluster(Point* clusterPoints, int clusterPointsSize, double* sumX, double* sumY, double* sumZ)
 {
-	*sumX = *sumY = *sumZ = 0;
+	*sumX = 0;
+	*sumY = 0;
+	*sumZ = 0;
 
 	// Calculate all the cluster points cordinates
 	for (int i = 0; i < clusterPointsSize; i++)
@@ -174,7 +173,7 @@ double evaluateQuality(Point** pointsMat, Cluster* clusters, int K, int* cluster
 double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K, double limit, double QM, double T, double dt, double* time,
 	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* initialPointsCor, double* currentPointsCor, double* velocityPointsCor, double* sumPointsCenters)
 {
-	double n, tempQuality=0, quality = 0;
+	double n, tempQuality, quality = 0;
 	// Match points to clusters
 
 	for (*time = 0, n = 0; n <= T / dt; n++)
@@ -182,21 +181,17 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 		// Calculate the current time
 		*time = n*dt;
 
-		printf("t = %lf Quality = %lf\n", *time, quality);
-		fflush(stdout);
+		//sends to each slave the relevante time
+		for (int proccessID = 1; proccessID < numprocs; proccessID++)
+		{
+			MPI_Send(time, 1, MPI_DOUBLE, proccessID, TRANSFER_TAG, MPI_COMM_WORLD);
+		}
 
 		// Calculate points cordinates according to current time
 		calPointsCordinates(points, numOfPoints, *time);
 
-		//sends to each slave the relevante time
-		for (int proccessID = 1; proccessID < numprocs; proccessID++)
-		{
-			MPI_Send(time, 1, MPI_DOUBLE, proccessID, TRANSFER_TAG, MPI_COMM_WORLD); 
-		}
-
 		// K-Mean Algorithm
 		tempQuality = kMeansAlgorithmMaster(points, clusters, pointsMat, clustersSize, numOfPoints, K, limit, numprocs, PointType, ClusterType, sumPointsCenters);
-
 
 		// Checks if the quality measure is less than QM
 		if (tempQuality < QM)
@@ -212,6 +207,9 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 		// Checks if the current given quality measure is better than the best given quality so far.
 		if (tempQuality < quality || quality == 0)
 			quality = tempQuality;
+
+		printf("t = %lf Quality = %lf\n", *time, quality);
+		fflush(stdout);
 	}
 
 	//sends to each slave the to finish the algorithm
@@ -286,8 +284,8 @@ double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat
 		}
 
 		// get the info from all the slaves to calculate the total answers
-		MPI_Reduce(clustersSize, totalClusterSize, K, MPI_INT, MPI_SUM, MASTER, MPI_COMM_WORLD);
 		MPI_Reduce(sumPointsCenters, totalSumPointsCenters, K*NUM_OF_DIMENSIONS, MPI_DOUBLE, MPI_SUM, MASTER, MPI_COMM_WORLD);
+		MPI_Reduce(clustersSize, totalClusterSize, K, MPI_INT, MPI_SUM, MASTER, MPI_COMM_WORLD);
 
 		// update the cluster centers
 		recalculateClusterCenters(clusters, K, totalSumPointsCenters, totalClusterSize);
@@ -347,11 +345,11 @@ void kMeansAlgorithmSlave(Point* points, Cluster* clusters, Point** pointsMat, i
 		MPI_Recv(clusters, K, ClusterType, MASTER, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 		if (status.MPI_TAG == MID_TAG) // kmeans finished for the current time
 		{
-			// return the points to the master
+			// return the points to the master to gather 
 			for (int i = 0; i < K; i++)
 			{
 				MPI_Send(&(clustersSize[i]), 1, MPI_INT, MASTER, TAG, MPI_COMM_WORLD);
-				MPI_Send(&(pointsMat[i]), clustersSize[i], PointType, MASTER, TAG, MPI_COMM_WORLD);
+				MPI_Send(pointsMat[i], clustersSize[i], PointType, MASTER, TAG, MPI_COMM_WORLD);
 			}
 		}
 		else // we need to continue te algorithm kmeans
@@ -365,8 +363,8 @@ void kMeansAlgorithmSlave(Point* points, Cluster* clusters, Point** pointsMat, i
 				calSumPointsCorToCluster(pointsMat[j], clustersSize[j], sumPointsCenters + (j * NUM_OF_DIMENSIONS), sumPointsCenters + (j * NUM_OF_DIMENSIONS)+1, sumPointsCenters + (j * NUM_OF_DIMENSIONS)+2);
 			}
 
-			MPI_Reduce(clustersSize, clustersSize, K, MPI_INT, MPI_SUM, MASTER, MPI_COMM_WORLD);
 			MPI_Reduce(sumPointsCenters, sumPointsCenters, K*NUM_OF_DIMENSIONS, MPI_DOUBLE, MPI_SUM, MASTER, MPI_COMM_WORLD);
+			MPI_Reduce(clustersSize, clustersSize, K, MPI_INT, MPI_SUM, MASTER, MPI_COMM_WORLD);
 
 			// Step 4 - Checks if some point move to another cluster after the update of clusetrs center cordinates.
 			for (j = 0; j < numOfPoints && (points[j].currentClusterIndex == points[j].previousClusterIndex); j++);

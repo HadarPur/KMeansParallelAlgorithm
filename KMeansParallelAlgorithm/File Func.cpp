@@ -4,8 +4,8 @@
 #include "KMeans Header.h"
 #include "Allocation Header.h"
 
-const char* FILE_PATH_INPUT = "D:\\KMeansParallelAlgorithm\\16Points.txt";
-const char* FILE_PATH_OUTPUT = "D:\\KMeansParallelAlgorithm\\16PointsOutPut.txt";
+const char* FILE_PATH_INPUT = "D:\\KMeansParallelAlgorithm\\INPUT_FILE16.txt";
+const char* FILE_PATH_OUTPUT = "D:\\KMeansParallelAlgorithm\\OUTPUT_FILE16.txt";
 
 // Read all the points from the file
 Point* readDataFromFile(int* N, int* K, double* T, double* dt, double* limit, double* QM)
