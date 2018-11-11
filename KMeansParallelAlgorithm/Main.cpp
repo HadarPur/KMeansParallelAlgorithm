@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
 	Point** pointsMat; // group of points for each cluster
 	int* clustersSize; // size for each group, size for each row 
 
-	double* initialPointsCor;
-	double* currentPointsCor;
-	double* velocityPointsCor;
+	double* initialPointsCoordinates;
+	double* currentPointsCoordinates;
+	double* velocityPointsCoordinates;
 	double* sumPointsCenters;
 
 	int i, errorCode = 999;
@@ -36,12 +36,6 @@ int main(int argc, char *argv[])
 	MPI_Get_processor_name(processor_name, &namelen);
 	MPI_Status status;
 	MPI_Comm grid_comm;
-
-	if (numprocs < 3)
-	{
-		printf("Num of the proccess / computers must be grater than 3");
-		MPI_Abort(MPI_COMM_WORLD, errorCode);
-	}
 
 	// MPI Point type
 	MPI_Datatype PointType;
@@ -88,16 +82,16 @@ int main(int argc, char *argv[])
 	checkAllocation(clustersSize);
 
 	// before starting each proccess needs to allocate space for the initial cordinates
-	initialPointsCor = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
-	checkAllocation(initialPointsCor);
+	initialPointsCoordinates = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
+	checkAllocation(initialPointsCoordinates);
 
 	// before starting each proccess needs to allocate space for the current cordinates
-	currentPointsCor = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
-	checkAllocation(currentPointsCor);
+	currentPointsCoordinates = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
+	checkAllocation(currentPointsCoordinates);
 
 	// before starting each proccess needs to allocate space for the velocity cordinates
-	velocityPointsCor = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
-	checkAllocation(velocityPointsCor);
+	velocityPointsCoordinates = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
+	checkAllocation(velocityPointsCoordinates);
 
 	// sum array to calculate the average x,y,z 
 	sumPointsCenters = (double*)calloc(K * NUM_OF_DIMENSIONS, sizeof(double));
@@ -120,17 +114,17 @@ int main(int argc, char *argv[])
 
 		start = omp_get_wtime();
 
-		initPointsInfoArray(initialPointsCor, currentPointsCor, velocityPointsCor, points, numOfPoints);
+		initPointsInfoArray(initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, points, numOfPoints);
 
 		//	master start the algorithm with the intervals
-		quality = kMeansWithIntervalsForMaster(points, clusters, pointsMat, clustersSize, numOfPoints, K, LIMIT, QM, T, dT, &time, PointType, ClusterType, numprocs, initialPointsCor, currentPointsCor, velocityPointsCor, sumPointsCenters);
+		quality = kMeansWithIntervalsForMaster(points, clusters, pointsMat, clustersSize, numOfPoints, K, LIMIT, QM, T, dT, &time, PointType, ClusterType, numprocs, initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, sumPointsCenters);
 
 		end = omp_get_wtime();
 
 		//write final points from file
 		writeToFile(time, quality, clusters, K);
 
-		printf("K-Means Algorithm status: finish after %lf, with quality of %lf\nAlso the output file is ready\n\n", end - start, quality);
+		printf("\nK-Means Algorithm status: finish after %lf, with quality of %lf\nAlso the output file is ready\n\n", end - start, quality);
 		fflush(stdout);
 	}
 	else
@@ -144,10 +138,10 @@ int main(int argc, char *argv[])
 
 		MPI_Recv(points, numOfPoints, PointType, MASTER, TAG, MPI_COMM_WORLD, &status);
 
-		initPointsInfoArray(initialPointsCor, currentPointsCor, velocityPointsCor, points, numOfPoints);
+		initPointsInfoArray(initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, points, numOfPoints);
 
 		// slave start the algorithm with the time that get from the master
-		kMeansWithIntervalsForSlave(points, clusters, pointsMat, clustersSize, numOfPoints, K, PointType, ClusterType, initialPointsCor, currentPointsCor, velocityPointsCor, sumPointsCenters);
+		kMeansWithIntervalsForSlave(points, clusters, pointsMat, clustersSize, numOfPoints, K, PointType, ClusterType, initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, sumPointsCenters);
 	}
 
 	//Free memory from the heap (dynamic)
@@ -159,9 +153,9 @@ int main(int argc, char *argv[])
 	freeDynamicAllocation(pointsMat);
 	freeDynamicAllocation(clusters);
 	freeDynamicAllocation(points);
-	freeDynamicAllocation(initialPointsCor);
-	freeDynamicAllocation(currentPointsCor);
-	freeDynamicAllocation(velocityPointsCor);
+	freeDynamicAllocation(initialPointsCoordinates);
+	freeDynamicAllocation(currentPointsCoordinates);
+	freeDynamicAllocation(velocityPointsCoordinates);
 	freeDynamicAllocation(sumPointsCenters);
 
 	printf("The proccess %d is finished\n", myid);

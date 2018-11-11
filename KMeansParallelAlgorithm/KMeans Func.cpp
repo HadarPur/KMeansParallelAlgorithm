@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <mpi.h>
+#include <omp.h>
 #include "KMeans Header.h"
 #include "Allocation Header.h"
 
@@ -12,6 +13,7 @@ Cluster* initClusters(const Point* points, int K)
 	Cluster* clusters = (Cluster*)malloc(K * sizeof(Cluster));
 	checkAllocation(clusters);
 
+#pragma omp parallel for shared(clusters)
 	for (i = 0; i < K; i++)
 	{
 		clusters[i].x = points[i].x0;
@@ -23,21 +25,22 @@ Cluster* initClusters(const Point* points, int K)
 }
 
 // initialize the help arrays 
-void initPointsInfoArray(double* initialPointsCor, double* currentPointsCor, double* velocityPointsCor, Point* points ,int numOfPoints)
+void initPointsInfoArray(double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, Point* points ,int numOfPoints)
 {
+#pragma omp parallel for shared(initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates)
 	for (int i = 0; i < numOfPoints; i++)
 	{
-		initialPointsCor[i * NUM_OF_DIMENSIONS] = points[i].x0;
-		initialPointsCor[(i * NUM_OF_DIMENSIONS)+1] = points[i].y0;
-		initialPointsCor[(i * NUM_OF_DIMENSIONS)+2] = points[i].z0;
+		initialPointsCoordinates[i * NUM_OF_DIMENSIONS] = points[i].x0;
+		initialPointsCoordinates[(i * NUM_OF_DIMENSIONS)+1] = points[i].y0;
+		initialPointsCoordinates[(i * NUM_OF_DIMENSIONS)+2] = points[i].z0;
 
-		currentPointsCor[i * NUM_OF_DIMENSIONS] = points[i].x;
-		currentPointsCor[(i * NUM_OF_DIMENSIONS) + 1] = points[i].y;
-		currentPointsCor[(i * NUM_OF_DIMENSIONS) + 2] = points[i].z;
+		currentPointsCoordinates[i * NUM_OF_DIMENSIONS] = points[i].x;
+		currentPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 1] = points[i].y;
+		currentPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 2] = points[i].z;
 
-		velocityPointsCor[i * NUM_OF_DIMENSIONS] = points[i].vx;
-		velocityPointsCor[(i * NUM_OF_DIMENSIONS) + 1] = points[i].vy;
-		velocityPointsCor[(i * NUM_OF_DIMENSIONS) + 2] = points[i].vz;
+		velocityPointsCoordinates[i * NUM_OF_DIMENSIONS] = points[i].vx;
+		velocityPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 1] = points[i].vy;
+		velocityPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 2] = points[i].vz;
 	}
 }
 
@@ -67,17 +70,22 @@ void groupPointsToClusters(Point** pointsMat, int* clustersSize, Point* points, 
 	int i;
 
 	//Reset ClustersSize Array Cells
+#pragma omp parallel for shared(clustersSize)
 	for (i = 0; i < K; i++)
 	{
 		clustersSize[i] = 0;
 	}
 
 	//finding for each point his closet cluster
+#pragma omp parallel for shared(points)
 	for (i = 0; i < totalNumOfPoints; i++)
 	{
 		points[i].previousClusterIndex = points[i].currentClusterIndex;
 		points[i].currentClusterIndex = getClosestClusterIndex(points[i].x, points[i].y, points[i].z, clusters, K);
+	}
 
+	for (i = 0; i < totalNumOfPoints; i++)
+	{
 		clustersSize[points[i].currentClusterIndex]++;
 		pointsMat[points[i].currentClusterIndex] = (Point*)realloc(pointsMat[points[i].currentClusterIndex], clustersSize[points[i].currentClusterIndex] * sizeof(Point));
 		pointsMat[points[i].currentClusterIndex][(clustersSize[points[i].currentClusterIndex]) - 1] = points[i];
@@ -92,9 +100,10 @@ double distancePointToPoint(double x1, double y1, double z1, double x2, double y
 
 
 // Calculate point position by time
-void calPointsCordinates(Point* points, int N, double t)
+void calPointsCoordinates(Point* points, int N, double t)
 {
 	int i;
+#pragma omp parallel for shared(points)
 	for (i = 0; i < N; i++)
 	{
 		points[i].x = points[i].x0 + (t*points[i].vx);
@@ -124,6 +133,8 @@ double calClusterDiameter(Point* clusterPoints, int clusterPointsSize)
 {
 	int i, j;
 	double maxDistance = 0, tempDistance = 0;
+
+#pragma omp parallel for private(i, j, tempDistance)
 	for (i = 0; i < clusterPointsSize; i++)
 	{
 		for (j = i + 1; j < clusterPointsSize; j++)
@@ -147,11 +158,13 @@ double evaluateQuality(Point** pointsMat, Cluster* clusters, int K, int* cluster
 
 	numOfArguments = K * (K - 1);
 
+#pragma omp parallel for shared (clusters) private(i, j, currentClustersDistance) reduction(+:numerator)
 	for (i = 0; i < K; i++)
 	{
 		// Calculate the current cluster's diameter (di) 
 		clusters[i].diameter = calClusterDiameter(pointsMat[i], clustersSize[i]);
 
+#pragma omp parallel for
 		for (j = 0; j < K; j++)
 		{
 			if (i != j)
@@ -171,7 +184,7 @@ double evaluateQuality(Point** pointsMat, Cluster* clusters, int K, int* cluster
 
 // KMeans algorithm with x,y that changing by time
 double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K, double limit, double QM, double T, double dt, double* time,
-	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* initialPointsCor, double* currentPointsCor, double* velocityPointsCor, double* sumPointsCenters)
+	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, double* sumPointsCenters)
 {
 	double n, tempQuality, quality = 0;
 	// Match points to clusters
@@ -182,13 +195,14 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 		*time = n*dt;
 
 		//sends to each slave the relevante time
+#pragma omp parallel for
 		for (int proccessID = 1; proccessID < numprocs; proccessID++)
 		{
 			MPI_Send(time, 1, MPI_DOUBLE, proccessID, TRANSFER_TAG, MPI_COMM_WORLD);
 		}
 
 		// Calculate points cordinates according to current time
-		calPointsCordinates(points, numOfPoints, *time);
+		calPointsCoordinates(points, numOfPoints, *time);
 
 		// K-Mean Algorithm
 		tempQuality = kMeansAlgorithmMaster(points, clusters, pointsMat, clustersSize, numOfPoints, K, limit, numprocs, PointType, ClusterType, sumPointsCenters);
@@ -197,6 +211,7 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 		if (tempQuality < QM)
 		{
 			//sends to each slave the to finish the algorithm
+#pragma omp parallel for
 			for (int proccessID = 1; proccessID < numprocs; proccessID++)
 			{
 				MPI_Send(time, 1, MPI_DOUBLE, proccessID, FINAL_TAG, MPI_COMM_WORLD); 
@@ -213,6 +228,7 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 	}
 
 	//sends to each slave the to finish the algorithm
+#pragma omp parallel for
 	for (int proccessID = 1; proccessID < numprocs; proccessID++)
 	{
 		MPI_Send(time, 1, MPI_DOUBLE, proccessID, FINAL_TAG, MPI_COMM_WORLD); 
@@ -223,7 +239,7 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 
 // KMeans algorithm with x,y that changing by time for slave operation
 void kMeansWithIntervalsForSlave(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K,
-	MPI_Datatype PointType, MPI_Datatype ClusterType, double* initialPointsCor, double* currentPointsCor, double* velocityPointsCor, double* sumPointsCenters)
+	MPI_Datatype PointType, MPI_Datatype ClusterType, double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, double* sumPointsCenters)
 {
 	double time;
 
@@ -236,7 +252,7 @@ void kMeansWithIntervalsForSlave(Point* points, Cluster* clusters, Point** point
 		if (status.MPI_TAG != FINAL_TAG)
 		{
 			// Calculate points cordinates according to current time
-			calPointsCordinates(points, numOfPoints, time);
+			calPointsCoordinates(points, numOfPoints, time);
 
 			// slave the kmeans algorithm
 			kMeansAlgorithmSlave(points, clusters, pointsMat, clustersSize, numOfPoints, K, PointType, ClusterType, sumPointsCenters);
@@ -269,6 +285,7 @@ double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat
 		totalFlag = 0;
 
 		//sends to each slave the clusters
+#pragma omp parallel for
 		for (int proccessID = 1; proccessID < numOfProccess; proccessID++)
 		{
 			MPI_Send(clusters, K, ClusterType, proccessID, TRANSFER_TAG, MPI_COMM_WORLD);
@@ -278,6 +295,7 @@ double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat
 		groupPointsToClusters(pointsMat, clustersSize, points, numOfPoints, clusters, K);
 
 		// Step 3 - Recalculate the clusters center (in the parallel code each proccess calculate the sum of coordinate x,y,z)
+#pragma omp parallel for shared (pointsMat, clustersSize, sumPointsCenters)
 		for (j = 0; j < K; j++)
 		{
 			calSumPointsCorToCluster(pointsMat[j], clustersSize[j], sumPointsCenters + (j * NUM_OF_DIMENSIONS), sumPointsCenters + ((j * NUM_OF_DIMENSIONS) + 1), sumPointsCenters + ((j * NUM_OF_DIMENSIONS) + 2));
@@ -301,6 +319,7 @@ double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat
 		if (totalFlag == numOfProccess)
 		{
 			//sends to each slave to finish
+#pragma omp parallel for
 			for (int proccessID = 1; proccessID < numOfProccess; proccessID++)
 			{
 				MPI_Send(clusters, K, ClusterType, proccessID, MID_TAG, MPI_COMM_WORLD);
@@ -316,6 +335,7 @@ double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat
 	}
 
 	//sends to each slave to finish
+#pragma omp parallel for
 	for (int proccessID = 1; proccessID < numOfProccess; proccessID++)
 	{
 		MPI_Send(clusters, K, ClusterType, proccessID, MID_TAG, MPI_COMM_WORLD);
@@ -358,6 +378,7 @@ void kMeansAlgorithmSlave(Point* points, Cluster* clusters, Point** pointsMat, i
 			groupPointsToClusters(pointsMat, clustersSize, points, numOfPoints, clusters, K);
 
 			// Step 3 - Recalculate the clusters center (in the parallel code each proccess calculate the sum of coordinate x,y,z)
+#pragma omp parallel for shared (pointsMat, clustersSize, sumPointsCenters)
 			for (j = 0; j < K; j++)
 			{
 				calSumPointsCorToCluster(pointsMat[j], clustersSize[j], sumPointsCenters + (j * NUM_OF_DIMENSIONS), sumPointsCenters + (j * NUM_OF_DIMENSIONS)+1, sumPointsCenters + (j * NUM_OF_DIMENSIONS)+2);
@@ -378,6 +399,7 @@ void kMeansAlgorithmSlave(Point* points, Cluster* clusters, Point** pointsMat, i
 // reinitialize the value  to be -1
 void reinitializePreviousClusterIndex(Point* points, int numOfPoints)
 {
+#pragma omp parallel for shared(points)
 	for (int i = 0; i < numOfPoints; i++)
 	{
 		points[i].previousClusterIndex = -1;
@@ -387,6 +409,7 @@ void reinitializePreviousClusterIndex(Point* points, int numOfPoints)
 // after gets the all info from the slave, recalculate the cluster centes again
 void recalculateClusterCenters(Cluster* clusters, int K, double* totalSumPointsCenters, int* totalClusterSize)
 {
+#pragma omp parallel for shared(clusters)
 	for (int i = 0; i < K; i++)
 	{
 		clusters[i].x = totalSumPointsCenters[(i*NUM_OF_DIMENSIONS)] / totalClusterSize[i];
