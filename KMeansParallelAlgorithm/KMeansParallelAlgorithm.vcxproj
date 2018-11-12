@@ -169,6 +169,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <ClInclude Include="Allocation Header.h" />
     <ClInclude Include="File Header.h" />
+    <ClInclude Include="Kernel Header.h" />
     <ClInclude Include="KMeans Header.h" />
     <ClInclude Include="MPI Type Decleration Header.h" />
   </ItemGroup>

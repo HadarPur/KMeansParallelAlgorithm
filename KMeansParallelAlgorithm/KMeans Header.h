@@ -52,3 +52,4 @@ double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat
 void reinitializePreviousClusterIndex(Point* points, int numOfPoints);
 void recalculateClusterCenters(Cluster* clusters, int K, double* totalSumPointsCenters, int* totalClusterSize);
 void gatherThePoints(Point** points, int* clustersSize, int* totalClusterSize, int K, int numOfProccess, MPI_Datatype PointType);
+void refreshPointsCoordinates(Point* points, int numOfPoints, double* currentPointsCoordinates);

@@ -23,7 +23,7 @@ Point* readDataFromFile(int* N, int* K, double* T, double* dt, double* limit, do
 	// Getting the supplied data from input file
 	fscanf(file, "%d %d %lf %lf %lf %lf\n", N, K, T, dt, limit, QM);
 
-	Point* points = (Point*)malloc(*N * sizeof(Point));
+	Point* points = (Point*)malloc((*N) * sizeof(Point));
 	checkAllocation(points);
 
 	// Initalize points from file
@@ -52,7 +52,7 @@ void writeToFile(double t, double q, Cluster* clusters, int K)
 		exit(1);
 	}
 
-	fprintf(file, "First occurrence at t = %lf with q = %lf\nCenters of the clusters:\n", t, q);
+	fprintf(file, "First occurrence at t = %f with q = %f\nCenters of the clusters:\n", t, q);
 
 	for (int i = 0; i < K; i++)
 	{
