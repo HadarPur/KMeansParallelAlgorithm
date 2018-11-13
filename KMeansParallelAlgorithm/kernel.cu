@@ -90,7 +90,7 @@ cudaError_t computePointsCordinates(double time, double* initPointsCordinates, d
 		error(dev_currentPointsCordinates, dev_pointsVelocityArr, dev_initPointsCordinates);
 	}
 
-	pointsMovementCalKernel << <numOfBlock, BLOCK_SIZE >> >(size, dev_initPointsCordinates, dev_pointsVelocityArr, dev_currentPointsCordinates, time);
+	pointsMovementCalKernel <<<numOfBlock, BLOCK_SIZE >>>(size, dev_initPointsCordinates, dev_pointsVelocityArr, dev_currentPointsCordinates, time);
 
 	cudaStatus = cudaGetLastError();
 	if (cudaStatus != cudaSuccess) {
@@ -105,5 +105,16 @@ cudaError_t computePointsCordinates(double time, double* initPointsCordinates, d
 		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
 		error(dev_currentPointsCordinates, dev_pointsVelocityArr, dev_initPointsCordinates);
 	}
+
+	cudaStatus = cudaMemcpy(initPointsCordinates, dev_initPointsCordinates, size * sizeof(double), cudaMemcpyDeviceToHost);
+	if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "cudaMemcpy failed!"); fflush(stdout);
+		error(dev_currentPointsCordinates, dev_pointsVelocityArr, dev_initPointsCordinates);
+	}
+
+	cudaFree(dev_currentPointsCordinates);
+	cudaFree(dev_pointsVelocityArr);
+	cudaFree(dev_initPointsCordinates);
+	
 	return cudaStatus;
 }
