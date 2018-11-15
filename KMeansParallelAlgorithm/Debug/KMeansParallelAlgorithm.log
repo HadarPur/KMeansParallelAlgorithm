@@ -1,34 +1,111 @@
 ﻿  Compiling CUDA source file kernel.cu...
   
   D:\KMeansParallelAlgorithm\KMeansParallelAlgorithm>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2015 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin"  -I"C:\Program Files\MPICH2\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd " -o Debug\kernel.cu.obj "D:\KMeansParallelAlgorithm\KMeansParallelAlgorithm\kernel.cu" 
-D:/KMeansParallelAlgorithm/KMeansParallelAlgorithm/kernel.cu(13): warning : variable "counter" was declared but never referenced
-D:/KMeansParallelAlgorithm/KMeansParallelAlgorithm/kernel.cu(13): warning : variable "counter" was declared but never referenced
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(411): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(411): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(411): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1473): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1473): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1473): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1906): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1906): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1906): warning : expression has no effect
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\KMeans Header.h(29): warning : declaration requires a typedef name
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\KMeans Header.h(45): warning : declaration requires a typedef name
+D:/KMeansParallelAlgorithm/KMeansParallelAlgorithm/kernel.cu(34): warning : variable "device_points" is used before its value is set
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(409): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(410): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(411): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(411): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(411): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1471): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1472): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1473): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1473): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1473): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1904): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1905): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1906): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1906): warning : expression has no effect
+c:\program files\mpich2\include\mpicxx.h(1906): warning : expression has no effect
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\KMeans Header.h(29): warning : declaration requires a typedef name
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\KMeans Header.h(45): warning : declaration requires a typedef name
+D:/KMeansParallelAlgorithm/KMeansParallelAlgorithm/kernel.cu(34): warning : variable "device_points" is used before its value is set
 CUDACOMPILE : nvcc warning : The 'compute_20', 'sm_20', and 'sm_21' architectures are deprecated, and may be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
   kernel.cu
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kernel.cu(34): warning C4700: uninitialized local variable 'device_points' used
   Main.cpp
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(19): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(35): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\main.cpp(38): warning C4101: 'grid_comm': unreferenced local variable
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(29): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(45): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\main.cpp(31): warning C4101: 'grid_comm': unreferenced local variable
   MPI Type Decleration Func.cpp
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(19): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(35): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(29): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(45): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
   KMeans Func.cpp
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(19): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(35): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(135): warning C4101: 'j': unreferenced local variable
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(162): warning C4101: 'j': unreferenced local variable
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(213): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(279): warning C4101: 'status': unreferenced local variable
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(29): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(45): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(109): warning C4101: 'j': unreferenced local variable
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(136): warning C4101: 'j': unreferenced local variable
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(186): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans func.cpp(251): warning C4101: 'status': unreferenced local variable
   File Func.cpp
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(19): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(35): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(14): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(29): warning C4091: 'typedef ': ignored on left of 'Cluster' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\kmeans header.h(45): warning C4091: 'typedef ': ignored on left of 'Point' when no variable is declared
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(11): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(24): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(21): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(32): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(29): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(1193): note: see declaration of 'fscanf'
-d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(47): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\kmeansparallelalgorithm\kmeansparallelalgorithm\file func.cpp(44): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
   Generating Code...
 File Func.obj : error LNK2019: unresolved external symbol _MPI_Finalize referenced in function "struct Point * __cdecl readDataFromFile(int *,int *,double *,double *,double *,double *)" (?readDataFromFile@@YAPAUPoint@@PAH0PAN111@Z)

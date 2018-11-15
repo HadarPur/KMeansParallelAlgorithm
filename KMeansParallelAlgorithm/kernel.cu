@@ -76,5 +76,6 @@ void callPointsCoordinatesWithCuda(Point* points, int numOfPoints, double time)
 		fprintf(stderr, "cudaMemcpy from device  failed!");
 		cudaFree(device_points);
 	}
+
 	cudaFree(device_points);
 }
