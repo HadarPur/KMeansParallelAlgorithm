@@ -1,4 +1,3 @@
-#include <mpi.h>
 #include "KMeans Header.h"
 #include "MPI Type Decleration Header.h"
 

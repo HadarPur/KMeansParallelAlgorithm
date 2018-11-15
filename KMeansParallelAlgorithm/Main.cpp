@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <mpi.h>
-#include <omp.h>
 #include "KMeans Header.h"
 #include "Allocation Header.h"
 #include "File Header.h"
@@ -15,9 +11,6 @@ int main(int argc, char *argv[])
 	Point** pointsMat; // group of points for each cluster
 	int* clustersSize; // size for each group, size for each row 
 
-	double* initialPointsCoordinates;
-	double* currentPointsCoordinates;
-	double* velocityPointsCoordinates;
 	double* sumPointsCenters;
 
 	int i, errorCode = 999;
@@ -81,18 +74,6 @@ int main(int argc, char *argv[])
 	clustersSize = (int*)calloc(K, sizeof(int));
 	checkAllocation(clustersSize);
 
-	// before starting each proccess needs to allocate space for the initial cordinates
-	initialPointsCoordinates = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
-	checkAllocation(initialPointsCoordinates);
-
-	// before starting each proccess needs to allocate space for the current cordinates
-	currentPointsCoordinates = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
-	checkAllocation(currentPointsCoordinates);
-
-	// before starting each proccess needs to allocate space for the velocity cordinates
-	velocityPointsCoordinates = (double*)calloc(numOfPoints * NUM_OF_DIMENSIONS, sizeof(double));
-	checkAllocation(velocityPointsCoordinates);
-
 	// sum array to calculate the average x,y,z 
 	sumPointsCenters = (double*)calloc(K * NUM_OF_DIMENSIONS, sizeof(double));
 	checkAllocation(sumPointsCenters);
@@ -114,17 +95,15 @@ int main(int argc, char *argv[])
 
 		start = omp_get_wtime();
 
-		initPointsInfoArray(initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, points, numOfPoints);
-
 		//	master start the algorithm with the intervals
-		quality = kMeansWithIntervalsForMaster(points, clusters, pointsMat, clustersSize, numOfPoints, K, LIMIT, QM, T, dT, &time, PointType, ClusterType, numprocs, initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, sumPointsCenters);
+		quality = kMeansWithIntervalsForMaster(points, clusters, pointsMat, clustersSize, numOfPoints, K, LIMIT, QM, T, dT, &time, PointType, ClusterType, numprocs, sumPointsCenters);
 
 		end = omp_get_wtime();
 
 		//write final points from file
 		writeToFile(time, quality, clusters, K);
 
-		printf("\nK-Means Algorithm status: finish after %lf, with quality of %lf\nAlso the output file is ready\n\n", end - start, quality);
+		printf("\nK-Means Algorithm status: finish after %lf sec, with quality of %lf\nAlso the output file is ready\n\n", end - start, quality);
 		fflush(stdout);
 	}
 	else
@@ -138,10 +117,8 @@ int main(int argc, char *argv[])
 
 		MPI_Recv(points, numOfPoints, PointType, MASTER, TAG, MPI_COMM_WORLD, &status);
 
-		initPointsInfoArray(initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, points, numOfPoints);
-
 		// slave start the algorithm with the time that get from the master
-		kMeansWithIntervalsForSlave(points, clusters, pointsMat, clustersSize, numOfPoints, K, PointType, ClusterType, initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates, sumPointsCenters);
+		kMeansWithIntervalsForSlave(points, clusters, pointsMat, clustersSize, numOfPoints, K, PointType, ClusterType, sumPointsCenters);
 	}
 
 	//Free memory from the heap (dynamic)
@@ -153,12 +130,10 @@ int main(int argc, char *argv[])
 	freeDynamicAllocation(pointsMat);
 	freeDynamicAllocation(clusters);
 	freeDynamicAllocation(points);
-	freeDynamicAllocation(initialPointsCoordinates);
-	freeDynamicAllocation(currentPointsCoordinates);
-	freeDynamicAllocation(velocityPointsCoordinates);
 	freeDynamicAllocation(sumPointsCenters);
 
-	printf("The proccess %d is finished\n", myid);
+	printf("The proccess %d is finished with computer name: %s\n", myid, processor_name);
+	fflush(stdout);
 
 	MPI_Finalize();
 	return 0;

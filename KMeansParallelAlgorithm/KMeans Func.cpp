@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <mpi.h>
-#include <omp.h>
 #include "KMeans Header.h"
 #include "Allocation Header.h"
-#include "Kernel Header.h"
 
 // Step 1 in K-Means algorithm
 Cluster* initClusters(const Point* points, int K)
@@ -23,26 +17,6 @@ Cluster* initClusters(const Point* points, int K)
 		clusters[i].diameter = 0;
 	}
 	return clusters;
-}
-
-// initialize the help arrays 
-void initPointsInfoArray(double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, Point* points ,int numOfPoints)
-{
-#pragma omp parallel for shared(initialPointsCoordinates, currentPointsCoordinates, velocityPointsCoordinates)
-	for (int i = 0; i < numOfPoints; i++)
-	{
-		initialPointsCoordinates[i * NUM_OF_DIMENSIONS] = points[i].x0;
-		initialPointsCoordinates[(i * NUM_OF_DIMENSIONS)+1] = points[i].y0;
-		initialPointsCoordinates[(i * NUM_OF_DIMENSIONS)+2] = points[i].z0;
-
-		currentPointsCoordinates[i * NUM_OF_DIMENSIONS] = points[i].x;
-		currentPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 1] = points[i].y;
-		currentPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 2] = points[i].z;
-
-		velocityPointsCoordinates[i * NUM_OF_DIMENSIONS] = points[i].vx;
-		velocityPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 1] = points[i].vy;
-		velocityPointsCoordinates[(i * NUM_OF_DIMENSIONS) + 2] = points[i].vz;
-	}
 }
 
 // Part of step 2 in K-Means algorithm
@@ -185,7 +159,7 @@ double evaluateQuality(Point** pointsMat, Cluster* clusters, int K, int* cluster
 
 // KMeans algorithm with x,y that changing by time
 double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K, double limit, double QM, double T, double dt, double* time,
-	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, double* sumPointsCenters)
+	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* sumPointsCenters)
 {
 	double n, tempQuality, quality = 0;
 	// Match points to clusters
@@ -202,15 +176,9 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 			MPI_Send(time, 1, MPI_DOUBLE, proccessID, TRANSFER_TAG, MPI_COMM_WORLD);
 		}
 
-
-		printf("point x=%lf\ty=%lf\tz=%lf\n", points[0].x, points[0].y, points[0].z);
-		printf("currentPointsCoordinates x=%lf\ty=%lf\tz=%lf\n", currentPointsCoordinates[0], currentPointsCoordinates[1], currentPointsCoordinates[2]);
-
 		// Calculate points cordinates according to current time with cuda
-		calPointsCoordinatesWithCuda(*time, initialPointsCoordinates, velocityPointsCoordinates, currentPointsCoordinates, numOfPoints*NUM_OF_DIMENSIONS);
-		refreshPointsCoordinates(points, numOfPoints, currentPointsCoordinates);
-
-
+		callPointsCoordinatesWithCuda(points, numOfPoints, *time);
+		
 		// Calculate points cordinates according to current time without cuda
 		//calPointsCoordinates(points, numOfPoints, *time);
 
@@ -249,7 +217,7 @@ double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** po
 
 // KMeans algorithm with x,y that changing by time for slave operation
 void kMeansWithIntervalsForSlave(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K,
-	MPI_Datatype PointType, MPI_Datatype ClusterType, double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, double* sumPointsCenters)
+	MPI_Datatype PointType, MPI_Datatype ClusterType, double* sumPointsCenters)
 {
 	double time;
 
@@ -262,8 +230,7 @@ void kMeansWithIntervalsForSlave(Point* points, Cluster* clusters, Point** point
 		if (status.MPI_TAG != FINAL_TAG)
 		{
 			// Calculate points cordinates according to current time with cuda
-			calPointsCoordinatesWithCuda(time, initialPointsCoordinates, velocityPointsCoordinates, currentPointsCoordinates, numOfPoints*NUM_OF_DIMENSIONS);
-			refreshPointsCoordinates(points, numOfPoints, currentPointsCoordinates);
+			callPointsCoordinatesWithCuda(points, numOfPoints, time);
 
 			// Calculate points cordinates according to current time without cuda
 			//calPointsCoordinates(points, numOfPoints, time);
@@ -448,18 +415,6 @@ void gatherThePoints(Point** pointsMat, int* clustersSize, int* totalClusterSize
 			clustersSize[i] += tmpSize;
 			MPI_Recv(pointsMat[i]+prevSize, tmpSize, PointType, proccessID, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 		}
-	}
-}
-
-void refreshPointsCoordinates(Point* points, int numOfPoints, double* currentPointsCoordinates)
-{
-	int i;
-#pragma omp parallel for shared (points)
-	for (i = 0; i < numOfPoints; i++)
-	{
-		points[i].x = currentPointsCoordinates[(i*NUM_OF_DIMENSIONS)];
-		points[i].y = currentPointsCoordinates[(i*NUM_OF_DIMENSIONS)+1];
-		points[i].z = currentPointsCoordinates[(i*NUM_OF_DIMENSIONS)+2];
 	}
 }
 

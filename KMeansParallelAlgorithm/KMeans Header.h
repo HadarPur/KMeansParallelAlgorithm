@@ -1,3 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <mpi.h>
+#include <omp.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #define MASTER 0
@@ -8,6 +16,8 @@
 #define NUM_OF_DIMENSIONS 3
 #define POINT_STRUCT_SIZE 11
 #define CLUSTER_STRUCT_SIZE 4
+#define CUDA_BLOCK_SIZE 1024
+
 
 // Structure for clusters
 typedef struct Cluster
@@ -43,13 +53,16 @@ double evaluateQuality(Point** pointsMat, Cluster* clusters, int K, int* cluster
 double calClusterDiameter(Point* clusterPoints, int clusterPointsSize);
 void calPointsCoordinates(Point* points, int totalNumOfPoints, double t);
 double kMeansWithIntervalsForMaster(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K, double limit, double QM, double T, double dt, double* time,
-	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, double* sumPointsCenters);
-void initPointsInfoArray(double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, Point* points, int numOfPoints);
+	MPI_Datatype PointType, MPI_Datatype ClusterType, int numprocs, double* sumPointsCenters);
 void kMeansWithIntervalsForSlave(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K,
-	MPI_Datatype PointType, MPI_Datatype ClusterType, double* initialPointsCoordinates, double* currentPointsCoordinates, double* velocityPointsCoordinates, double* sumPointsCenters);
+	MPI_Datatype PointType, MPI_Datatype ClusterType, double* sumPointsCenters);
 void kMeansAlgorithmSlave(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K, MPI_Datatype PointType, MPI_Datatype ClusterType, double* sumPointsCenters);
 double kMeansAlgorithmMaster(Point* points, Cluster* clusters, Point** pointsMat, int* clustersSize, int numOfPoints, int K, int limit, int numOfProccess, MPI_Datatype PointType, MPI_Datatype ClusterType, double* sumPointsCenters);
 void reinitializePreviousClusterIndex(Point* points, int numOfPoints);
 void recalculateClusterCenters(Cluster* clusters, int K, double* totalSumPointsCenters, int* totalClusterSize);
 void gatherThePoints(Point** points, int* clustersSize, int* totalClusterSize, int K, int numOfProccess, MPI_Datatype PointType);
-void refreshPointsCoordinates(Point* points, int numOfPoints, double* currentPointsCoordinates);
+
+//--------------------CUDA--------------------
+void callPointsCoordinatesWithCuda(Point* points, int numOfPoints, double time);
+void free(Point*  p);
+__global__ void callPointsCoordinatesByTimeWithCuda(Point* points, int numOfPoints, double time);
