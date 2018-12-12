@@ -2,10 +2,12 @@
 # KMeansParallelAlgorithm
 
 ## Problem Definition
-Given a set of points in 3-dimensional space. Initial position (xi, yi, zi) and velocity (vxi, vyi, vzi) are known for each point Pi. Its position at the given time t can be calculated as follows:\n
+Given a set of points in 3-dimensional space. Initial position (xi, yi, zi) and velocity (vxi, vyi, vzi) are known for each point Pi. Its position at the given time t can be calculated as follows:
+
 xi(t) = xi + t*vxi
 yi(t) = yi + t*vyi
 zi(t) = zi + t*vzi
+
 Implement simplified K-Means algorithm to find K clusters. Find a first occurrence during given time interval [0, T] when a system of K clusters has a Quality Measure q that is less than given value QM.
 
 
