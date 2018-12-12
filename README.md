@@ -2,7 +2,7 @@
 # KMeansParallelAlgorithm
 
 ## Problem Definition
-Given a set of points in 3-dimensional space. Initial position (xi, yi, zi) and velocity (vxi, vyi, vzi) are known for each point Pi. Its position at the given time t can be calculated as follows:
+Given a set of points in 3-dimensional space. Initial position (xi, yi, zi) and velocity (vxi, vyi, vzi) are known for each point Pi. Its position at the given time t can be calculated as follows:\n
 xi(t) = xi + t*vxi
 yi(t) = yi + t*vyi
 zi(t) = zi + t*vzi
