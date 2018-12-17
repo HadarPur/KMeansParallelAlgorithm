@@ -71,27 +71,18 @@ You will be supplied with the following data
 9.	 Each process activate the K-Means function.
 
 K-Means Algorithm:
-    •	The master process sends the calculated clusters to the slave’s processes(OMP).
-    
-    •	Each process iterates on all his own points and finds the closest cluster to each of the points (OMP).
-    
-    •	Each process computes the sum of coordinates x, sum of coordinates y and sum of coordinates z of all the points who belong to the same cluster. Each cluster have his own sum X, sum Y and sum Z.(OMP)
-    
-    •	With the help of the MPI_Reduce, all the sums of x, y and z are gathering in the master process. 
-    
-    Also, the total number of points who are belong to the same cluster are gathering together in the Master process (MPI_SUM).
-    
-    •	The Master process, calculated and updated the clusters centers according to the sum x coordinates, sum y coordinates, sum z coordinates and the number of points who belong to specific cluster(OMP).
-    
-    •	Each process checks if his all of points belongs to the same cluster in step 2 of the K-Means algorithm.
-    
-    •	Each process sends the answer from the previous step to the master process.
-    
-    •	The master process gathers the answers from the step 6 with the help of the MPI_Reduce and checks if the termination condition is fulfilled. 
-    
-    •	If the termination condition is fulfilling or the master process has done limit iterations: the master process gathers all the points from all the slave processes, and send K-Means-Termination tag to the slaves and finally calculate and return the quality.
-    
-    •	If the termination condition is not fulfilled and the master process has not done limit iteration:  return to step 1 in the K-Means algorithm. 
+•	The master process sends the calculated clusters to the slave’s processes(OMP).
+•	Each process iterates on all his own points and finds the closest cluster to each of the points (OMP).
+•	Each process computes the sum of coordinates x, sum of coordinates y and sum of coordinates z of all the points who belong to the same cluster. Each cluster have his own sum X, sum Y and sum Z.(OMP)
+•	With the help of the MPI_Reduce, all the sums of x, y and z are gathering in the master process. 
+Also, the total number of points who are belong to the same cluster are gathering together in the Master process (MPI_SUM).
+•	The Master process, calculated and updated the clusters centers according to the sum x coordinates, sum y coordinates, sum z coordinates and the number of points who belong to specific cluster(OMP).
+•	Each process checks if his all of points belongs to the same cluster in step 2 of the K-Means algorithm.
+•	Each process sends the answer from the previous step to the master process.
+•	The master process gathers the answers from the step 6 with the help of the MPI_Reduce and checks if the termination condition is fulfilled. 
+•	If the termination condition is fulfilling or the master process has done limit iterations: the master process gathers all the points from all the slave processes, and send K-Means-Termination tag to the slaves and finally calculate and return the quality.
+•	If the termination condition is not fulfilled and the master process has not done limit iteration:  return to step 1 in the K-Means algorithm. 
+
 
 10.	The master obtains the current quality and checks if the quality is less than QM and check:
 
