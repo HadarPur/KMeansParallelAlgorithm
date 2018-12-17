@@ -93,7 +93,6 @@ You will be supplied with the following data
     
     •	If the termination condition is not fulfilled and the master process has not done limit iteration:  return to step 1 in the K-Means algorithm. 
 
-
 10.	The master obtains the current quality and checks if the quality is less than QM and check:
 
     •	If the current quality is less than QM or the time is T/dt the master sends to all slave processes Final-Termination-tag and return the quality.
