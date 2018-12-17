@@ -79,7 +79,7 @@ You will be supplied with the following data
     
     •	With the help of the MPI_Reduce, all the sums of x, y and z are gathering in the master process. 
     
-    Also, the total number of points who are belong to the same cluster are gathering together in the Master process (MPI_SUM).
+        Also, the total number of points who are belong to the same cluster are gathering together in the Master process (MPI_SUM).
     
     •	The Master process, calculated and updated the clusters centers according to the sum x coordinates, sum y coordinates, sum z coordinates and the number of points who belong to specific cluster(OMP).
     
